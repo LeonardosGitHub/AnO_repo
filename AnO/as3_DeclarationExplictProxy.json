@@ -93,6 +93,9 @@
         "class": "Data_Group",
         "keyDataType": "string",
         "records": [
+          {
+            "key": "client.badssl.com"
+          }
         ]
       },
       "all_uris": {
