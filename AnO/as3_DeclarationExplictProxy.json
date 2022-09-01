@@ -18,7 +18,7 @@
                "value": "us-east-1_123456_datagroup"
            },
            {
-            "key": "104.219.105.84/32",
+            "key": "104.219.105.8/32",
             "value": "us-east-1_654321_datagroup"
            }
        ]
