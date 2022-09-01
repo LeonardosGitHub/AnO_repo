@@ -93,6 +93,9 @@
         "class": "Data_Group",
         "keyDataType": "string",
         "records": [
+          {"key": "example.com"},
+          {"key": "f5.com"},
+          {"key": "cisco.com"}
         ]
       },
       "all_uris": {
