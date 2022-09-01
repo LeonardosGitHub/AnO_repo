@@ -196,14 +196,7 @@
                 "servicePort": 443,
                 "addressDiscovery": "fqdn",
                 "autoPopulate": true,
-                "hostname": "sandbox.api.fcs.uk.mastercard.com",
-                "shareNodes": true
-            },
-            {
-                "servicePort": 443,
-                "addressDiscovery": "fqdn",
-                "autoPopulate": true,
-                "hostname": "us-e1.vap-staging.virtucrypt.com",
+                "hostname": "example.com",
                 "shareNodes": true
             }
         ]
