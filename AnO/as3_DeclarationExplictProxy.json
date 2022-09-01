@@ -93,9 +93,6 @@
         "class": "Data_Group",
         "keyDataType": "string",
         "records": [
-          {
-            "key": "client.badssl.com"
-          }
         ]
       },
       "all_uris": {
@@ -188,6 +185,28 @@
         "pool": {
           "use": "telemetry_pool"
         }
+      },
+      "ssl_bypass_fqdn_pool": {
+        "class": "Pool",
+        "monitors": [
+            "https"
+        ],
+        "members": [
+            {
+                "servicePort": 443,
+                "addressDiscovery": "fqdn",
+                "autoPopulate": true,
+                "hostname": "sandbox.api.fcs.uk.mastercard.com",
+                "shareNodes": true
+            },
+            {
+                "servicePort": 443,
+                "addressDiscovery": "fqdn",
+                "autoPopulate": true,
+                "hostname": "us-e1.vap-staging.virtucrypt.com",
+                "shareNodes": true
+            }
+        ]
       }
     }
   },
@@ -238,35 +257,39 @@
         "looseInitialization": true
       },
       "explicitProxy_HTTPS_VS": {
-        "class": "Service_HTTPS",
-        "layer4": "tcp",
-        "redirect80": false,
-        "virtualAddresses": [
-          {
-            "use": "/Common/Shared/serviceAddress"
-          }
-        ],
-        "profileTCP": {
-          "use":"/Common/Shared/tcp_profile_opt28"
-        },
-        "persistenceMethods": [],
-        "translateServerPort": false,
-        "translateServerAddress": false,
-        "virtualPort": 443,
-        "profileHTTP": {
-          "bigip": "/Common/http"
-        },
-        "snat": "auto",
-        "allowVlans": [
-          {
-            "bigip": "/Common/explicitProxy_tunnel"
-          }
-        ],
-        "clientTLS": "clientTLS_SSL_FORWARD_PROXY",
-        "serverTLS": "serverTLS_SSL_FORWARD_PROXY",
-        "iRules": [
-          "/Common/Shared/explicitHttps_irule"
-        ]
+          "class": "Service_HTTPS",
+          "layer4": "tcp",
+          "redirect80": false,
+          "virtualAddresses": [
+              {
+                  "use": "/Common/Shared/serviceAddress"
+              }
+          ],
+          "profileTCP": {
+              "use":"/Common/Shared/tcp_profile_opt28"
+          },
+          "persistenceMethods": [],
+          "translateServerPort": false,
+          "translateServerAddress": false,
+          "virtualPort": 443,
+          "profileHTTP": {
+              "bigip": "/Common/http"
+          },
+          "snat": "auto",
+          "allowVlans": [
+              {
+                  "bigip": "/Common/explicitProxy_tunnel"
+              }
+          ],
+          "clientTLS": "clientTLS_SSL_FORWARD_PROXY",
+          "serverTLS": [
+              {
+                  "bigip": "/Common/serverTLS_SSL_FORWARD_PROXY"
+              }
+          ],
+          "iRules": [
+              "/Common/Shared/explicitHttps_irule"
+          ]
       },
       "serverTLS_SSL_FORWARD_PROXY": {
         "class": "TLS_Server",
