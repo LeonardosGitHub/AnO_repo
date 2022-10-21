@@ -8,7 +8,14 @@
         "class": "Service_Address",
         "virtualAddress": "0.0.0.0"
       },
-      "tcp_profile_opt28": {"class": "TCP_Profile", "tcpOptions":[{"option": 28,"when": "first"}]},
+      "tcp_profile_opt28": {
+        "class": "TCP_Profile",
+        "tcpOptions":[
+          {"option": 28,"when": "first"}
+        ],
+        "initCwnd": 10,
+        "initRwnd": 10
+      },
       "srcipToDatagroup": {
         "class": "Data_Group",
         "keyDataType": "ip",
