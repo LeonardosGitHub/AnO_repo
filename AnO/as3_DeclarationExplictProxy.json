@@ -21,6 +21,10 @@
         "keyDataType": "ip",
         "records": [
            {
+               "key": "10.0.0.0/8",
+               "value": "local_vpc_datagroup"
+           },
+           {
                "key": "10.21.21.0/27",
                "value": "us-east-1_123456_datagroup"
            },
@@ -29,6 +33,16 @@
             "value": "us-east-1_654321_datagroup"
            }
        ]
+      },
+      "local_vpc_datagroup": {
+           "class": "Data_Group",
+           "keyDataType": "string",
+           "records": [
+               {
+                   "key": "*.ubuntu.com",
+                   "value": "all_uris"
+               }
+           ]
       },
       "us-east-1_123456_datagroup": {
            "class": "Data_Group",
