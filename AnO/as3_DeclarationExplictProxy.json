@@ -29,8 +29,8 @@
                "value": "us-east-1_123456_datagroup"
            },
            {
-            "key": "104.219.105.8/32",
-            "value": "us-east-1_654321_datagroup"
+            "key": "104.219.105.84/32",
+            "value": "us-east-1_123456_datagroup"
            }
        ]
       },
@@ -41,6 +41,10 @@
                {
                    "key": "*.ubuntu.com",
                    "value": "all_uris"
+               },
+               {
+                "key": "*.ubuntu.com",
+                "value": "all_uris"
                }
            ]
       },
@@ -124,12 +128,7 @@
         "keyDataType": "string",
         "records": [
           {
-            "key": "f5.com",
-            "value": "all_uris"
-          },
-          {
-            "key": "udf.f5.com",
-            "value": "all_uris"
+            "key": "/"
           }
         ]
       },
