@@ -39,11 +39,11 @@
            "keyDataType": "string",
            "records": [
                {
-                   "key": "*.ubuntu.com",
+                   "key": "\\*.ubuntu.com",
                    "value": "all_uris"
                },
                {
-                "key": "*.ubuntu.com",
+                "key": "ubuntu.com",
                 "value": "all_uris"
                }
            ]
