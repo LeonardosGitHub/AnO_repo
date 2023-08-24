@@ -21,7 +21,7 @@
         "keyDataType": "ip",
         "records": [
            {
-               "key": "10.0.0.0/8",
+               "key": "0.0.0.0/0",
                "value": "local_vpc_datagroup"
            },
            {
@@ -39,11 +39,11 @@
            "keyDataType": "string",
            "records": [
                {
-                   "key": "\\*.ubuntu.com",
+                   "key": "us-east-2.ec2.archive.ubuntu.com",
                    "value": "all_uris"
                },
                {
-                "key": "ubuntu.com",
+                "key": "server.proxy.com",
                 "value": "all_uris"
                }
            ]
