@@ -1,5 +1,10 @@
 {
     "class": "Telemetry",
+    "controls": {
+        "class": "Controls",
+        "logLevel": "info",
+        "debug": false
+    },
     "My_System": {
         "class": "Telemetry_System",
         "systemPoller": {
@@ -13,8 +18,17 @@
     "My_Consumer": {
         "class": "Telemetry_Consumer",
         "type": "AWS_CloudWatch",
+        "enable": true,
         "region": "us-east-2",
         "logGroup": "autoscaleExplicitProxyLeonardo",
         "logStream": "default"
+    },
+    "My_Metrics_Consumer": {
+        "class": "Telemetry_Consumer",
+        "type": "AWS_CloudWatch",
+        "enable": true,
+        "region": "us-east-2",
+        "dataType": "metrics",
+        "metricNamespace": "f5_proxy"
     }
 }
