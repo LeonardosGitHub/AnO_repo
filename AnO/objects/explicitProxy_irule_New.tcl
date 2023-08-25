@@ -83,20 +83,26 @@ when CLIENT_DATA {
 when HTTP_PROXY_REQUEST {
     set 403response 0
     set sharedTraffic "shared"
-    if {[HTTP::host] == ""} {
-        HTTP::header replace Host [HTTP::uri]
-        }
-    set hsl_proxyhttpProxyReq "url=\"[getfield [HTTP::host] ":" 1]\",portReqByClient=\"[URI::port [HTTP::uri]]\",httpHost=\"[HTTP::uri]\",httpMethod=\"[HTTP::method]\",httpVersion=\"[HTTP::version]\""
-    set hostPort [getfield [HTTP::host] ":" 2]
+    # Bypass mitigation: Delete 3 lines below
+    # if {[HTTP::host] == ""} {
+    #     HTTP::header replace Host [HTTP::uri]
+    #     }
+    # Bypass mitigation: rewrite this variable
+    #set hsl_proxyhttpProxyReq "url=\"[getfield [HTTP::host] ":" 1]\",portReqByClient=\"[URI::port [HTTP::uri]]\",httpHost=\"[HTTP::uri]\",httpMethod=\"[HTTP::method]\",httpVersion=\"[HTTP::version]\""
+    set hsl_proxyhttpProxyReq "url=\"[HTTP::uri]\",portReqByClient=\"[URI::port [HTTP::uri]]\",httpHost=\"[HTTP::uri]\",httpMethod=\"[HTTP::method]\",httpVersion=\"[HTTP::version]\""
+    # Bypass mitigation: rewrite this variable
+    #set hostPort [getfield [HTTP::host] ":" 2]
+    set hostPort [URI::port [HTTP::uri]]
     set custHttpHeader [HTTP::header value "proxyUUID"]
-    if {[string trim $hostPort] != ""} {
-        # Port is part of the HOST header, no action is needed
-    } else {
-        set hostPort 443
-        # This is being done to handle a scenario related to form3 where in the CONNECT phase the
-        # HOST does not have the port information provided as required by the RFC: https://tools.ietf.org/html/rfc7231#section-4.3.6
-        if { $static::explicitProxy_debug } { log local0.warning "Host port is null. Setting it to 443 for host: [getfield [string tolower [HTTP::host]] ":" 1]"}
-    }
+    # Bypass mitigation: section can be removed
+    # if {[string trim $hostPort] != ""} {
+    #     # Port is part of the HOST header, no action is needed
+    # } else {
+    #     set hostPort 443
+    #     # This is being done to handle a scenario related to form3 where in the CONNECT phase the
+    #     # HOST does not have the port information provided as required by the RFC: https://tools.ietf.org/html/rfc7231#section-4.3.6
+    #     if { $static::explicitProxy_debug } { log local0.warning "Host port is null. Setting it to 443 for host: [getfield [string tolower [HTTP::host]] ":" 1]"}
+    # }
     #Use custom header if not use IP address
     if { $custHttpHeader != ""} {
        set sourceClient $custHttpHeader
@@ -132,8 +138,9 @@ when HTTP_PROXY_REQUEST {
             HSL::send $hslproxy "Apache Log4j vulnerability prevention fix."
         } else {
             if { $static::explicitProxy_debug } {log local0.info "checking in explicitPxy_bypass and shared datagroups"}
-
-            set hostName [getfield [string tolower [HTTP::host]] ":" 1]
+            #Bypass mitigation - update variable
+            #set hostName [getfield [string tolower [HTTP::host]] ":" 1]
+            set hostName [string tolower [URI::host [HTTP::uri]]]
             set dotIndex [string first "." $hostName 0]
             set starHostName [string replace $hostName 0 $dotIndex "#."]
             log local0.info "REPLACED: $starHostName"
@@ -147,7 +154,9 @@ when HTTP_PROXY_REQUEST {
                 set hsl_proxywhitelistHost $whitelistHostAccepted
             } elseif {[catch $srcDatagroup] && ($hostPort == 443 or $hostPort > 1024)} {
 
-                if {[class match [getfield [string tolower [HTTP::host]] ":" 1] equals Shared/$srcDatagroup ]} {
+                #Bypass mitigation
+                #if {[class match [getfield [string tolower [HTTP::host]] ":" 1] equals Shared/$srcDatagroup ]}
+                if {[class match [string tolower [URI::host [HTTP::uri]]] equals Shared/$srcDatagroup ]} {
                     set hsl_proxywhitelistHost $whitelistHostAccepted
                 } elseif {[class match $starHostName equals Shared/$srcDatagroup ]} {
                     set hsl_proxywhitelistHost $whitelistHostAccepted
@@ -165,8 +174,12 @@ when HTTP_PROXY_REQUEST {
         HSL::send $hslproxy "The Proxy v2 iRule did not produce a source IP, unable to allow traffic, responding with 403"
     }
     if {$403response == 1} {
-        if { $static::explicitProxy_debug } { log local0.info "Hostname: [ getfield [HTTP::host] ":" 1]"}
-        if { $static::explicitProxy_debug } {log local0. "Port: [ getfield [HTTP::host] ":" 2]"}
+        #Bypass Mitigation
+        #if { $static::explicitProxy_debug } { log local0.info "Hostname: [ getfield [HTTP::host] ":" 1]"}
+        if { $static::explicitProxy_debug } { log local0.info "Hostname: [ URI::host [HTTP::uri]]"}
+        #Bypass Mitigation
+        #if { $static::explicitProxy_debug } {log local0. "Port: [ getfield [HTTP::host] ":" 2]"}
+        if { $static::explicitProxy_debug } {log local0. "Port: [ URI::port [HTTP::uri]]"}
         if { $static::explicitProxy_debug } { log local0. "$hsl_proxyclientAccept : $hsl_proxyhttpProxyReq"}
         HTTP::close
         HTTP::respond 403

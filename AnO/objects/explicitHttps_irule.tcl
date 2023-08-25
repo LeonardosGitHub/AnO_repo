@@ -1,7 +1,7 @@
 when RULE_INIT {
     set static::explicitHTTPS_debug 0; # if this is set to 1 additional conditional logging will be enabled.
-    set static::categoriesToBlock {"Botnets" "Cloud Provider Networks" "Denial of Service" "Illegal Websites" "Infected Sources" "Phishing" "Proxy" "Scanners" "Spam Sources" "Web Attacks" "Windows Exploits"}
 }
+
 when CLIENT_ACCEPTED {
     set hslhttps [HSL::open -proto TCP -pool Shared/telemetry_pool2]
     set hsl_httpsclientAccept "logType=\"httpsLog\",eventTimestamp=\"[clock format [clock seconds] -format "%a, %d %h %Y %T GMT" -gmt 1]\",bigipHostname=\"$static::tcl_platform(machine)\",clientIp=\"[IP::remote_addr clientside]\",clientPort=\"[TCP::client_port]\",virtualName=\"[virtual name]\",bytesToClient=\"[IP::stats bytes out]\",bytesToProxy=\"[IP::stats bytes in]\""
@@ -60,131 +60,124 @@ when HTTP_REQUEST {
        set sourceClient $v2_sourceAddress
        set customHeader 0
     }
-    if { ([HTTP::uri] contains "jndi:ldap") || ([HTTP::uri] contains "jndi%3Aldap") } {
-        set 403response 1
-        HSL::send $hslhttps "Apache Log4j vulnerability prevention fix."
-    }
-
     if {[info exists sourceClient]} {
         if {$customHeader == 1}{
             set srcDatagroup [class match -value $sourceClient equals Shared/proxyFilterHeaderToDatagroup]
         }
         else {
-            if { $static::explicitHTTPS_debug } {log local0.info "source variable HTTPS: $sourceClient"}
-            set srcDatagroup [class match -value $sourceClient equals Shared/srcipToDatagroup]
+          if { $static::explicitHTTPS_debug } {log local0.info "source variable HTTPS: $sourceClient"}
+          set srcDatagroup [class match -value $sourceClient equals Shared/srcipToDatagroup]
         }
         #if { $static::explicitHTTPS_debug } {log local0.debug "[HTTP::host] source variable HTTPS: $sourceClient, customHeader = $customHeader source dataGroup: $srcDatagroup"}
         if {[info exists srcDatagroup]} {
+
             if { ([HTTP::uri] contains "jndi:ldap") || ([HTTP::uri] contains "jndi%3Aldap") } {
+
                 set 403response 1
                 HSL::send $hslhttps "Apache Log4j vulnerability prevention fix."
+
             }
             else {
+
+                set hostAccepted "whitelistHost=\"ACCEPTED\""
+                set uriAllowed "whitelistURI=\"ALLOWED\""
+                set uri [string tolower [HTTP::uri]]
+
                 if { $srcDatagroup ne "" } {
+
                     set hostName [getfield [string tolower [HTTP::host]] ":" 1]
-                    set get_uri_datagroup  [class match -value [string tolower [HTTP::host]] equals Shared/$srcDatagroup]
+                    set get_uri_datagroup  [class match -value [string tolower $hostName] equals Shared/$srcDatagroup]
+
                     #if { $static::explicitHTTPS_debug } {log local0.info "[HTTP::host] uri datagroup: $get_uri_datagroup"}
                     if {[info exists get_uri_datagroup]} {
-                        if {[class match "noh" equals Shared/$srcDatagroup ]} {
-                            if {[class match -value "method" equals Shared/$srcDatagroup] contains [HTTP::method] } {
-                                log local0. "method match"
-                                #if {[HTTP::method] == "GET"} {}
-                                if { $static::explicitHTTPS_debug } {log local0.debug "noh traffic provisionally allowed as request is GET method"}
-                                set hsl_httpswhitelistHost "whitelistHost=\"ACCEPTED\""
-                                set hsl_httpswhitelistURI "whitelistURI=\"ALLOWED\""
-                                if {[class match -value "ipi" equals Shared/$srcDatagroup] contains "true"} {
-                                    log local0. "IPI matched true"
-                                    set ipi_match [IP::reputation [LB::server addr]]
-                                    log local0. "IPI category match: $ipi_match"
-                                    foreach match $ipi_match {
-                                        if {[lsearch -exact $static::categoriesToBlock $match] >= 0} {
-                                            set 403response 1
-                                            if { $static::explicitHTTPS_debug } {log local0.debug "noh traffic denied due to IP intelligence. Destination IP address, [LB::server addr], which has been categorized as: ($ipi_match), request was rejected"}
-                                            HSL::send $hslhttps "noh traffic denied due to IP intelligence. Destination IP address, [LB::server addr], which has been categorized as: ($ipi_match), request was rejected"
-                                            break
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        elseif {[class match [string tolower [HTTP::host]] equals Shared/$srcDatagroup] && [class match [string tolower [HTTP::uri]] starts_with Shared/$get_uri_datagroup]} {
-                            #if { $static::explicitHTTPS_debug } {log local0.debug "[HTTP::host] Matched whiteList"}
-                            set hsl_httpswhitelistHost "whitelistHost=\"ACCEPTED\""
-                            set hsl_httpswhitelistURI "whitelistURI=\"ALLOWED\""
+                        if {[class match [string tolower $hostName] equals Shared/$srcDatagroup] && [class match $uri starts_with Shared/$get_uri_datagroup]} {
+                            #if { $static::explicitHTTPS_debug } {log local0.debug "$hostName Matched whiteList"}
+                            set hsl_httpswhitelistHost $hostAccepted
+                            set hsl_httpswhitelistURI $uriAllowed
                             #HTTP::header insert X-Real-IP [IP::remote_addr clientside]
                         }
                         else {
+
                             set dotIndex [string first "." $hostName 0]
                             set starHostName [string replace $hostName 0 $dotIndex "#."]
                             log local0.info "REPLACED.: $starHostName"
-                            set get_uri_datagroup  [class match -value [string tolower $starHostName] equals Shared/$srcDatagroup]
-                            if {[class match [string tolower $starHostName] equals Shared/$srcDatagroup] && [class match [string tolower [HTTP::uri]] starts_with Shared/$get_uri_datagroup]} {
+                            set get_uri_datagroup  [class match -value $starHostName equals Shared/$srcDatagroup]
+
+                            if {[class match $starHostName equals Shared/$srcDatagroup] && [class match $uri starts_with Shared/$get_uri_datagroup]} {
                                 #if { $static::explicitHTTPS_debug } {log local0.debug "[HTTP::host] Matched whiteList"}
-                                set hsl_httpswhitelistHost "whitelistHost=\"ACCEPTED\""
-                                set hsl_httpswhitelistURI "whitelistURI=\"ALLOWED\""
+                                set hsl_httpswhitelistHost $hostAccepted
+                                set hsl_httpswhitelistURI $uriAllowed
                                 #HTTP::header insert X-Real-IP [IP::remote_addr clientside]
                             }
                             else {
-                                HSL::send $hslhttps "Failed to match Host with URI"
                                 set 403response 1
                             }
+
                         }
                     }
                     else {
                         HSL::send $hslhttps "Unable to map hostname datagroup to URI data group"
                         set 403response 1
                     }
+                } else {
+                    set 403response 1
                 }
-                else {
-                    log local0.info "checking in shared datagroup.."
-                    set sharedTrafficDatagroup [class match -value $sharedTraffic equals Shared/sharedDatagroup]
-                    if {[info exists sharedTrafficDatagroup]} {
-                        if { $sharedTrafficDatagroup ne "" } {
-                            set hostName [getfield [string tolower [HTTP::host]] ":" 1]
-                            set get_uri_datagroup  [class match -value [string tolower [HTTP::host]] equals Shared/$sharedTrafficDatagroup]
-                            #if { $static::explicitHTTPS_debug } {log local0.info "[HTTP::host] uri datagroup: $get_uri_datagroup"}
-                            if {[info exists get_uri_datagroup]} {
-                                if {[class match [string tolower [HTTP::host]] equals Shared/$sharedTrafficDatagroup] && [class match [string tolower [HTTP::uri]] starts_with Shared/$get_uri_datagroup]} {
+
+                #If no srcDatagroup match, check shared datagroup
+
+                log local0.info "checking in shared datagroup.."
+                set sharedTrafficDatagroup [class match -value $sharedTraffic equals Shared/sharedDatagroup]
+
+                if {$403response == 1 && [catch $sharedTrafficDatagroup]} {
+
+                        set hostName [getfield [string tolower [HTTP::host]] ":" 1]
+                        set get_uri_datagroup  [class match -value [string tolower $hostName] equals Shared/$sharedTrafficDatagroup]
+
+                        #if { $static::explicitHTTPS_debug } {log local0.info "[HTTP::host] uri datagroup: $get_uri_datagroup"}
+                        if {[info exists get_uri_datagroup]} {
+                            if {[class match [string tolower $hostName] equals Shared/$sharedTrafficDatagroup] && [class match $uri starts_with Shared/$get_uri_datagroup]} {
+                                #if { $static::explicitHTTPS_debug } {log local0.debug "$hostName Matched whiteList"}
+                                set hsl_httpswhitelistHost $hostAccepted
+                                set hsl_httpswhitelistURI $uriAllowed
+                                set 403response 0
+                                #HTTP::header insert X-Real-IP [IP::remote_addr clientside]
+                            }
+                            else {
+
+                                set dotIndex [string first "." $hostName 0]
+                                set starHostName [string replace $hostName 0 $dotIndex "#."]
+                                log local0.info "REPLACED.: $starHostName"
+                                set get_uri_datagroup  [class match -value $starHostName equals Shared/$sharedTrafficDatagroup]
+
+                                if {[class match $starHostName equals Shared/$sharedTrafficDatagroup] && [class match $uri starts_with Shared/$get_uri_datagroup]} {
                                     #if { $static::explicitHTTPS_debug } {log local0.debug "[HTTP::host] Matched whiteList"}
-                                    set hsl_httpswhitelistHost "whitelistHost=\"ACCEPTED\""
-                                    set hsl_httpswhitelistURI "whitelistURI=\"ALLOWED\""
+                                    set hsl_httpswhitelistHost $hostAccepted
+                                    set hsl_httpswhitelistURI $uriAllowed
+                                    set 403response 0
                                     #HTTP::header insert X-Real-IP [IP::remote_addr clientside]
                                 }
                                 else {
-                                    set dotIndex [string first "." $hostName 0]
-                                    set starHostName [string replace $hostName 0 $dotIndex "#."]
-                                    log local0.info "REPLACED.: $starHostName"
-                                    set get_uri_datagroup  [class match -value [string tolower $starHostName] equals Shared/$sharedTrafficDatagroup]
-                                    if {[class match [string tolower $starHostName] equals Shared/$sharedTrafficDatagroup] && [class match [string tolower [HTTP::uri]] starts_with Shared/$get_uri_datagroup]} {
-                                        #if { $static::explicitHTTPS_debug } {log local0.debug "[HTTP::host] Matched whiteList"}
-                                        set hsl_httpswhitelistHost "whitelistHost=\"ACCEPTED\""
-                                        set hsl_httpswhitelistURI "whitelistURI=\"ALLOWED\""
-                                        #HTTP::header insert X-Real-IP [IP::remote_addr clientside]
-                                    }
-                                    else {
-                                        HSL::send $hslhttps "Failed to match Host with URI in shared datagroup"
-                                        set 403response 1
-                                    }
+
+                                    HSL::send $hslhttps "Failed to match Host with URI in srcDatagroup or shared datagroup"
+                                    set 403response 1
                                 }
-                            }
-                            else {
-                                HSL::send $hslhttps "Unable to map hostname datagroup to URI shared data group"
-                                set 403response 1
                             }
                         }
                         else {
-                            HSL::send $hslhttps "Shared data group policy doesn't exist"
+                            HSL::send $hslhttps "Unable to map hostname datagroup to URI shared data group"
                             set 403response 1
                         }
-                    }
-                    else {
-                        HSL::send $hslhttps "Shared data group policy is incorrect"
-                        set 403response 1
-                    }
+
+                } elseif {!([catch $sharedTrafficDatagroup])} {
+
+                       HSL::send $hslhttps "Shared data group policy doesn't exist"
+                       set 403response 1
                 }
+
             }
         }
         else {
+
             HSL::send $hslhttps "Source IP data group policy doesn't exist"
             set 403response 1
         }
@@ -201,29 +194,17 @@ when HTTP_REQUEST {
         HTTP::respond 403
         HSL::send $hslhttps "$hsl_httpsclientAccept,$hsl_httpsclientsslhandshake,$hsl_httpshttpRequest,$hsl_httpshttpResponse,$hsl_httpswhitelistHost,$hsl_httpswhitelistURI"
         if { $static::explicitHTTPS_debug } { log local0.debug "$hsl_httpsclientAccept,$hsl_httpsclientsslhandshake,$hsl_httpshttpRequest,$hsl_httpshttpResponse,$hsl_httpswhitelistHost,$hsl_httpswhitelistURI"}
-    }
+      }
 }
 when HTTP_RESPONSE {
-    set contentLengthCheck 0
-    if {[class match "noh" equals Shared/$srcDatagroup ]} {
-        set contentLengthmin [class match -value "contentLenMin" equals Shared/$srcDatagroup ]
-        set contentLengthmax [class match -value "contentLenMax" equals Shared/$srcDatagroup ]
-        if {not([HTTP::header "Content-Length"] >= $contentLengthmin and [HTTP::header "Content-Length"] <= $contentLengthmax)} {
-            set contentLengthCheck 1
-            if { $static::explicitHTTPS_debug } { log local0.debug "Content-Length header was equal to 0 or out of specified range or not present - failed"}
-            log local0.debug "Content-Length header was equal to 0 or out of specified range or not present - failed"
-        }
-    }
-    if {$403response == 0 and $contentLengthCheck == 0} {
+    if {$403response == 0} {
         set hsl_httpshttpResponse "httpStatus=\"[HTTP::status]\""
         HSL::send $hslhttps "$hsl_httpsclientAccept,$hsl_httpsclientsslhandshake,$hsl_httpshttpRequest,$hsl_httpshttpResponse,$hsl_httpswhitelistHost,$hsl_httpswhitelistURI"
         if { $static::explicitHTTPS_debug } { log local0.debug "$hsl_httpsclientAccept,$hsl_httpsclientsslhandshake,$hsl_httpshttpRequest,$hsl_httpshttpResponse,$hsl_httpswhitelistHost,$hsl_httpswhitelistURI"}
     }
     else {
-        set hsl_httpswhitelistURI "whitelistURI=\"NOT_EVALUATED\""
-        set hsl_httpswhitelistHost "whitelistHost=\"DENIED\""
-        set hsl_httpshttpResponse "httpStatus=\"403\""
         HTTP::respond 403
+        set hsl_httpshttpResponse "httpStatus=\"403\""
         HSL::send $hslhttps "$hsl_httpsclientAccept,$hsl_httpsclientsslhandshake,$hsl_httpshttpRequest,$hsl_httpshttpResponse,$hsl_httpswhitelistHost,$hsl_httpswhitelistURI"
         if { $static::explicitHTTPS_debug } { log local0.debug "$hsl_httpsclientAccept,$hsl_httpsclientsslhandshake,$hsl_httpshttpRequest,$hsl_httpshttpResponse,$hsl_httpswhitelistHost,$hsl_httpswhitelistURI"}
     }
