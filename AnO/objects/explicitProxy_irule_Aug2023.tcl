@@ -89,7 +89,7 @@ when HTTP_PROXY_REQUEST {
     #     }
     # Bypass mitigation: rewrite this variable
     #set hsl_proxyhttpProxyReq "url=\"[getfield [HTTP::host] ":" 1]\",portReqByClient=\"[URI::port [HTTP::uri]]\",httpHost=\"[HTTP::uri]\",httpMethod=\"[HTTP::method]\",httpVersion=\"[HTTP::version]\""
-    set hsl_proxyhttpProxyReq "url=\"[HTTP::uri]\",portReqByClient=\"[URI::port [HTTP::uri]]\",httpHost=\"[HTTP::uri]\",httpMethod=\"[HTTP::method]\",httpVersion=\"[HTTP::version]\""
+    set hsl_proxyhttpProxyReq "url=\"[HTTP::uri]\",portReqByClient=\"[URI::port [HTTP::uri]]\",httpHost=\"[URI::host [HTTP::uri]]\",httpMethod=\"[HTTP::method]\",httpVersion=\"[HTTP::version]\""
     # Bypass mitigation: rewrite this variable
     #set hostPort [getfield [HTTP::host] ":" 2]
     set hostPort [URI::port [HTTP::uri]]
