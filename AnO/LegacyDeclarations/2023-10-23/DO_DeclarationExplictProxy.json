@@ -1,0 +1,20 @@
+{
+    "schemaVersion": "1.8.0",
+    "class": "Device",
+    "label": "Configuring System",
+    "async": false,
+    "Common": {
+        "class": "Tenant",
+        "mySystem": {
+            "class": "System",
+            "cliInactivityTimeout": 1200,
+            "consoleInactivityTimeout": 1200
+        },
+        "TS_Syslog": {
+            "class": "SyslogRemoteServer",
+            "host": "127.0.0.1",
+            "localIp": "127.0.0.1",
+            "remotePort": 6514
+        }
+    }
+}

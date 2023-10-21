@@ -3,7 +3,7 @@ from string import Template
 
 fileToLoad = "as3_DeclarationExplicitProxy.json"
 iteration = 1
-stop = 10000  # Can't be greater than 4294967295, this determines the number of new "clients"
+stop = 100000  # Can't be greater than 4294967295, this determines the number of new "clients"
 
 #makes sure file is at original state
 shutil.copyfile("orig_as3_DeclarationExplicitProxy.json",fileToLoad)
