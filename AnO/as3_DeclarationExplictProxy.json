@@ -370,7 +370,7 @@
           }
         ],
         "iRules": [
-          "/Common/Shared/explicitHttps_irule"
+          "/Common/Shared/explicitProxy_irule"
         ]
       },
       "ExplicitProxyHttp2http_profile": {
