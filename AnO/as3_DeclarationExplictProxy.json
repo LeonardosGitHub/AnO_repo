@@ -294,7 +294,7 @@
           }
         ],
         "iRules": [
-          "/Common/Shared/explicitHttps_irule"
+          "/Common/Shared/explicitProxy_irule"
         ]
       },
       "serverTLS_SSL_FORWARD_PROXY": {
@@ -368,6 +368,9 @@
           {
             "bigip": "/Common/internal"
           }
+        ],
+        "iRules": [
+          "/Common/Shared/explicitHttps_irule"
         ]
       },
       "ExplicitProxyHttp2http_profile": {
@@ -421,7 +424,8 @@
           }
         ],
         "iRules": [
-          {"use" : "explicitHttpsHttp2_irule"}
+          {"use" : "explicitHttpsHttp2_irule"},
+          "/Common/Shared/explicitHttps_irule"
         ]
       },
       "SSL_FORWARD_PROXY": {
