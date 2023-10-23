@@ -368,9 +368,6 @@
           {
             "bigip": "/Common/internal"
           }
-        ],
-        "iRules": [
-          "/Common/Shared/explicitProxy_irule"
         ]
       },
       "ExplicitProxyHttp2http_profile": {
@@ -424,7 +421,7 @@
           }
         ],
         "iRules": [
-          "/Common/Shared/explicitHttps_irule"
+          {"use" : "explicitHttpsHttp2_irule"}
         ],
         "profileHTTP2": {"bigip": "/Common/http2"}
       },
@@ -448,6 +445,11 @@
         "privateKey": {
           "bigip": "/Common/default.key"
         }
+      },
+      "explicitHttpsHttp2_irule": {
+        "class": "iRule",
+        "iRule": {
+          "base64": "d2hlbiBTRVJWRVJTU0xfU0VSVkVSSEVMTE8gewogICAgaWYgeyAhKFtTU0w6OmFscG5dIHN0YXJ0c193aXRoICJodHRwIil9IHsKICAgICAgICAgSFRUUDo6ZGlzYWJsZQogICAgfQp9"}
       }
     }
   },
