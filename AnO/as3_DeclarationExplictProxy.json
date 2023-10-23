@@ -422,8 +422,7 @@
         ],
         "iRules": [
           {"use" : "explicitHttpsHttp2_irule"}
-        ],
-        "profileHTTP2": {"bigip": "/Common/http2"}
+        ]
       },
       "SSL_FORWARD_PROXY": {
         "class": "Certificate",
