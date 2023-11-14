@@ -90,6 +90,10 @@
             {
              "key": "server.proxy.com",
              "value": "all_uris"
+            },
+            {
+             "key": "server1.proxy.com",
+             "value": "all_uris"
             }
         ]
    },
