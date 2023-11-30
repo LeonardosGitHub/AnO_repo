@@ -346,6 +346,246 @@
       }
     }
   },
+  "ExplicitProxyHttp2": {
+    "class": "Tenant",
+    "ExplicitProxyHttp2": {
+      "class": "Application",
+      "template": "generic",
+      "ExplicitProxyHttp2VS": {
+        "class": "Service_HTTP",
+        "layer4": "tcp",
+        "virtualAddresses": [
+          {
+            "use": "/Common/Shared/serviceAddress"
+          }
+        ],
+        "profileTCP": {
+          "use": "/Common/Shared/tcp_profile_opt28"
+        },
+        "persistenceMethods": [],
+        "virtualPort": 10443,
+        "profileHTTP": {
+          "use": "ExplicitProxyHttp2http_profile"
+        },
+        "snat": "auto",
+        "allowVlans": [
+          {
+            "bigip": "/Common/internal"
+          }
+        ],
+        "iRules": [
+          "/Common/Shared/explicitProxy_irule"
+        ]
+      },
+      "ExplicitProxyHttp2http_profile": {
+        "class": "HTTP_Profile",
+        "proxyType": "explicit",
+        "requestChunking": "rechunk",
+        "responseChunking": "rechunk",
+        "resolver": {
+          "bigip": "/Common/explicitProxy_resolver"
+        },
+        "tunnelName": "/Common/ExplicitProxyHttp2_tunnel"
+      },
+      "ExplicitProxyHttp2L4_profile": {
+        "class": "L4_Profile",
+        "looseClose": true,
+        "looseInitialization": true
+      },
+      "ExplicitProxyHttp2_HTTPS_VS": {
+        "class": "Service_HTTPS",
+        "layer4": "tcp",
+        "redirect80": false,
+        "virtualAddresses": [
+          {
+            "use": "/Common/Shared/serviceAddress"
+          }
+        ],
+        "profileTCP": {
+          "use": "/Common/Shared/tcp_profile_opt28"
+        },
+        "persistenceMethods": [],
+        "translateServerPort": false,
+        "translateServerAddress": false,
+        "virtualPort": 0,
+        "profileHTTP": {
+          "bigip": "/Common/http"
+        },
+        "snat": "auto",
+        "allowVlans": [
+          {
+            "bigip": "/Common/ExplicitProxyHttp2_tunnel"
+          }
+        ],
+        "clientTLS": [
+          {
+            "bigip": "/Common/clientTLS_SSL_FORWARD_PROXY_http2"
+          }
+        ],
+        "serverTLS": [
+          {
+            "bigip": "/Common/serverTLS_SSL_FORWARD_PROXY_http2"
+          }
+        ],
+        "iRules": [
+          {"use" : "explicitHttpsHttp2_irule"},
+          "/Common/Shared/explicitHttps_irule"
+        ]
+      },
+      "SSL_FORWARD_PROXY": {
+        "class": "Certificate",
+        "certificate": {
+          "bigip": "/Common/SSL_FORWARD_PROXY.crt"
+        },
+        "privateKey": {
+          "bigip": "/Common/SSL_FORWARD_PROXY.key"
+        },
+        "chainCA": {
+          "bigip": "/Common/SSL_FORWARD_PROXY_CHAIN.crt"
+        }
+      },
+      "defaultCert": {
+        "class": "Certificate",
+        "certificate": {
+          "bigip": "/Common/default.crt"
+        },
+        "privateKey": {
+          "bigip": "/Common/default.key"
+        }
+      },
+      "explicitHttpsHttp2_irule": {
+        "class": "iRule",
+        "iRule": {
+          "base64": "d2hlbiBTRVJWRVJTU0xfU0VSVkVSSEVMTE8gewogICAgaWYgeyAhKFtTU0w6OmFscG5dIHN0YXJ0c193aXRoICJodHRwIil9IHsKICAgICAgICAgSFRUUDo6ZGlzYWJsZQogICAgfQp9"}
+      }
+    }
+  },
+  "ExplicitProxyHttp3": {
+    "class": "Tenant",
+    "ExplicitProxyHttp3": {
+      "class": "Application",
+      "template": "generic",
+      "ExplicitProxyHttp3VS": {
+        "class": "Service_HTTP",
+        "layer4": "tcp",
+        "virtualAddresses": [
+          {
+            "use": "/Common/Shared/serviceAddress"
+          }
+        ],
+        "profileTCP": {
+          "use": "/Common/Shared/tcp_profile_opt28"
+        },
+        "persistenceMethods": [],
+        "virtualPort": 11443,
+        "profileHTTP": {
+          "use": "ExplicitProxyHttp3http_profile"
+        },
+        "snat": "auto",
+        "allowVlans": [
+          {
+            "bigip": "/Common/internal"
+          }
+        ],
+        "iRules": [
+          "/Common/Shared/explicitProxy_irule"
+        ]
+      },
+      "ExplicitProxyHttp3http_profile": {
+        "class": "HTTP_Profile",
+        "proxyType": "explicit",
+        "requestChunking": "rechunk",
+        "responseChunking": "rechunk",
+        "resolver": {
+          "bigip": "/Common/explicitProxy_resolver"
+        },
+        "tunnelName": "/Common/explicitProxy_tunnel"
+      },
+      "ExplicitProxyHttp3L4_profile": {
+        "class": "L4_Profile",
+        "looseClose": true,
+        "looseInitialization": true
+      },
+      "ExplicitProxyHttp3_HTTPS_VS": {
+        "class": "Service_HTTPS",
+        "layer4": "tcp",
+        "redirect80": false,
+        "virtualAddresses": [
+          {
+            "use": "/Common/Shared/serviceAddress"
+          }
+        ],
+        "profileTCP": {
+          "use": "/Common/Shared/tcp_profile_opt28"
+        },
+        "persistenceMethods": [],
+        "translateServerPort": false,
+        "translateServerAddress": false,
+        "virtualPort": 0,
+        "profileHTTP": {
+          "bigip": "/Common/http"
+        },
+        "snat": "auto",
+        "allowVlans": [
+          {
+            "bigip": "/Common/explicitProxy_tunnel"
+          }
+        ],
+        "clientTLS": "clientTLS_SSL_FORWARD_PROXY",
+        "serverTLS": [
+          {
+            "bigip": "/Common/serverTLS_SSL_FORWARD_PROXY"
+          }
+        ],
+        "iRules": [
+          "/Common/Shared/explicitProxy_irule"
+        ]
+      },
+      "serverTLS_SSL_FORWARD_PROXY": {
+        "class": "TLS_Server",
+        "remark": "something unique for each update to the datagroup",
+        "certificates": [
+          {
+            "proxyCertificate": "SSL_FORWARD_PROXY",
+            "certificate": "defaultCert"
+          }
+        ],
+        "ciphers": "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256",
+        "forwardProxyEnabled": true,
+        "forwardProxyBypassEnabled": true,
+        "forwardProxyBypassAllowlist": {
+          "use": "/Common/Shared/explicitPxy_bypass"
+        }
+      },
+      "clientTLS_SSL_FORWARD_PROXY": {
+        "class": "TLS_Client",
+        "forwardProxyEnabled": true,
+        "forwardProxyBypassEnabled": true,
+        "trustCA": "generic"
+      },
+      "SSL_FORWARD_PROXY": {
+        "class": "Certificate",
+        "certificate": {
+          "bigip": "/Common/SSL_FORWARD_PROXY.crt"
+        },
+        "privateKey": {
+          "bigip": "/Common/SSL_FORWARD_PROXY.key"
+        },
+        "chainCA": {
+          "bigip": "/Common/SSL_FORWARD_PROXY_CHAIN.crt"
+        }
+      },
+      "defaultCert": {
+        "class": "Certificate",
+        "certificate": {
+          "bigip": "/Common/default.crt"
+        },
+        "privateKey": {
+          "bigip": "/Common/default.key"
+        }
+      }
+    }
+  },
   "class": "ADC",
   "schemaVersion": "3.26.0",
   "label": "autoscale_ltm_withExplicitProxy",
