@@ -94,6 +94,14 @@
             {
              "key": "server1.proxy.com",
              "value": "all_uris"
+            },
+            {
+             "key": "server2.proxy.com",
+             "value": "all_uris"
+            },
+            {
+             "key": "server3.proxy.com",
+             "value": "all_uris"
             }
         ]
    },
