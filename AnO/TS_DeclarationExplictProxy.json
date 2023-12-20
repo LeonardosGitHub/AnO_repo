@@ -21,7 +21,8 @@
         "enable": true,
         "region": "us-east-2",
         "logGroup": "lsimon-ExpProxy",
-        "logStream": "lsimon-logstream"
+        "logStream": "lsimon-logstream",
+        "maxAwsLogBatchSize": 500
     },
     "My_Metrics_Consumer": {
         "class": "Telemetry_Consumer",
