@@ -15,6 +15,10 @@
             "host": "127.0.0.1",
             "localIp": "127.0.0.1",
             "remotePort": 6514
-        }
+        },
+        "Provision": {
+            "ilx": "nominal",
+            "ltm": "nominal"
+      }
     }
 }
