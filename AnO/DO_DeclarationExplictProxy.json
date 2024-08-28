@@ -17,6 +17,7 @@
             "remotePort": 6514
         },
         "Provision": {
+            "class": "Provision",
             "ilx": "nominal",
             "ltm": "nominal"
       }
