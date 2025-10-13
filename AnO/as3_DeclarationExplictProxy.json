@@ -58,7 +58,7 @@
         "keyDataType": "string",
         "records": [
           {
-            "key": "testapi.girogate.de",
+            "key": "ssllabs.com",
             "value": "all_uris"
           }
         ]
